@@ -43,6 +43,7 @@ app.get('/pdf/:report_id/', async (req, res) => {
   console.log('Browser has ' + (await browser.pages()).length + ' pages');
   console.log((await browser.pages()));
   await browser.close();
+  console.log('Browser is closed, going to send respone.');
   res.contentType('application/pdf');
   res.send(pdfBuffer);
 });
