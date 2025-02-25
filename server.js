@@ -4,11 +4,16 @@ console.log('js start')
 const puppeteer = require('puppeteer');
 const express = require('express');
 const validator = require('validator');
+const cors = require('cors');
 const { ReadableStream } = require('web-streams-polyfill');
 global.ReadableStream = ReadableStream;
 
 
 const app = express();
+
+app.use(cors({
+  origin: ['http://localhost:8080', 'https://form.betaversion.se']
+}));
 
 app.get('/', async (req, res) => {
   let emoji = getHappyEmoji();
@@ -26,26 +31,36 @@ app.get('/pdf/:report_id/', async (req, res) => {
   const page = await browser.newPage();
   
   console.log('Loading page');
-  await page.goto('https://form.betaversion.se/#/report/'+report_id, {
+  const url = 'https://form.betaversion.se/#/report/'+report_id;
+  console.log('going to url ' + url);
+  await page.goto(url, {
     waitUntil: 'networkidle0',
   });
   
   console.log('Generating pdf');
+  
   const pdfBuffer = await page.pdf({
-    path: 'test.pdf',
+    // path: 'test.pdf',
     displayHeaderFooter: false,
     format: 'A4',
     landscape: true,
     printBackground: true,
     outline: true // experimental
   });
-
+  console.log('PDF Buffer Size:', pdfBuffer.length);
   console.log('Browser has ' + (await browser.pages()).length + ' pages');
   console.log((await browser.pages()));
   await browser.close();
   console.log('Browser is closed, going to send respone.');
-  res.contentType('application/pdf');
-  res.send(pdfBuffer);
+  // Save PDF locally for inspection
+  const fs = require('fs');
+  fs.writeFileSync('test.pdf', pdfBuffer);
+
+  // res.contentType('application/pdf');
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Length', pdfBuffer.length);
+  // res.setHeader('Content-Disposition', 'attachment; filename=report.pdf');
+  res.end(pdfBuffer, 'binary');
 });
 
 const happyEmojis = ['🌞', '✨', '🌼', '🤸‍♂️', '☕', '🐶', '🍌', '🤠', '🤓', '👽', '🦄', '🦚'];
