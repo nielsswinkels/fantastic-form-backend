@@ -1,65 +1,37 @@
 console.log('js start')
 const puppeteer = require('puppeteer');
+const express = require('express');
 const { ReadableStream } = require('web-streams-polyfill');
 global.ReadableStream = ReadableStream;
 
 
-// (async () => {
-//   // Launch the browser and open a new blank page
-//   const browser = await puppeteer.launch();
-//   const page = await browser.newPage();
+const app = express();
 
-//   // Navigate the page to a URL
-//   await page.goto('https://developer.chrome.com/');
+app.get('/', async (req, res) => {
+  let emoji = getHappyEmoji();
+  console.log('Sending greeting ' + emoji);
+  res.send('Have a nice day! '+ emoji);
+});
 
-//   // Set screen size
-//   await page.setViewport({width: 1080, height: 1024});
+app.get('/pdf/:report_id/', async (req, res) => {
+  //const report_id = req.params.report_id;
+  const report_id = 'ufaiFlheLF';
 
-//   // Type into search box
-//   await page.type('.devsite-search-field', 'automate beyond recorder');
 
-//   // Wait and click on first result
-//   const searchResultSelector = '.devsite-result-item-link';
-//   await page.waitForSelector(searchResultSelector);
-//   await page.click(searchResultSelector);
-
-//   // Locate the full title with a unique string
-//   const textSelector = await page.waitForSelector(
-//     'text/Customize and automate',
-//   );
-//   const fullTitle = await textSelector?.evaluate(el => el.textContent);
-
-//   // Print the full title
-//   console.log('The title of this blog post is "%s".', fullTitle);
-
-//   await browser.close();
-// })();
-
-(async () => {
   console.log('function start')
-  // const browser = await puppeteer.launch();
-  // const page = await browser.newPage();
-  // await page.goto('https://tiigbg.se', { waitUntil: 'networkidle0' });
-  // await page.pdf({ path: 'example.pdf', format: 'A4' });
-
-  // console.log('PDF successfully created!');
-  // await browser.close();  
-  
-
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   
-  // Navigate the page to a URL.
-  // await page.goto('https://tiigbg.se/', {
-  //   waitUntil: 'networkidle2',
-  // });
   console.log('Loading page');
-  await page.goto('https://form.betaversion.se/#/report/ufaiFlheLF', {
+  // =========================================
+  // TODO !!! INJECTION SECURITY HOLE HERE?
+  // =========================================
+  await page.goto('https://form.betaversion.se/#/report/'+report_id, {
     waitUntil: 'networkidle0',
   });
   
   console.log('Generating pdf');
-  await page.pdf({
+  const pdfBuffer = await page.pdf({
     path: 'test.pdf',
     displayHeaderFooter: false,
     format: 'A4',
@@ -71,25 +43,15 @@ global.ReadableStream = ReadableStream;
   console.log('Browser has ' + (await browser.pages()).length + ' pages');
   console.log((await browser.pages()));
   await browser.close();
+  return pdfBuffer.toString('base64');
+});
 
-  // console.log('Going to save file.');
-  // const file = new Parse.File('document.pdf', { base64: pdfBuffer.toString('base64') });
-  // await file.save();
+const happyEmojis = ['🌞', '✨', '🌼', '🤸‍♂️', '☕', '🐶', '🍌', '🤠', '🤓', '👽', '🦄', '🦚'];
 
-  // console.log('File saved!');
-  // console.log(file.url());
-})();
+function getHappyEmoji() {
+    return happyEmojis[Math.floor(Math.random()*happyEmojis.length)];
+}
 
-// Parse.Cloud.define("generatePdf", async (request) => {
-//   const puppeteer = require('puppeteer');
-//   const browser = await puppeteer.launch();
-//   const page = await browser.newPage();
-//   await page.goto('https://your-quasar-website.com');
-//   const pdfBuffer = await page.pdf({ format: 'A4' });
-//   await browser.close();
-
-//   const file = new Parse.File('document.pdf', { base64: pdfBuffer.toString('base64') });
-//   await file.save();
-
-//   return file.url(); // Return the URL of the saved PDF
-// });
+app.listen(port, async () => {
+    console.log(`App listening at http://localhost:${port} ` + getHappyEmoji());
+});
