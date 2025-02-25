@@ -1,0 +1,10 @@
+{
+  "applications": {
+    "Fantastic Form": {
+      "applicationId": "vS9DpcWiZzIEYhLAuksaYbh0PaDSKsuhA8VQs0H6"
+    },
+    "_default": {
+      "link": "Fantastic Form"
+    }
+  }
+}
