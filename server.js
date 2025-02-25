@@ -3,6 +3,7 @@ const port = 3000;
 console.log('js start')
 const puppeteer = require('puppeteer');
 const express = require('express');
+const validator = require('validator');
 const { ReadableStream } = require('web-streams-polyfill');
 global.ReadableStream = ReadableStream;
 
@@ -16,7 +17,7 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/pdf/:report_id/', async (req, res) => {
-  //const report_id = req.params.report_id;
+  //const report_id = validator.escape(req.params.report_id);
   const report_id = 'ufaiFlheLF';
 
 
@@ -25,9 +26,6 @@ app.get('/pdf/:report_id/', async (req, res) => {
   const page = await browser.newPage();
   
   console.log('Loading page');
-  // =========================================
-  // TODO !!! INJECTION SECURITY HOLE HERE?
-  // =========================================
   await page.goto('https://form.betaversion.se/#/report/'+report_id, {
     waitUntil: 'networkidle0',
   });
@@ -45,7 +43,8 @@ app.get('/pdf/:report_id/', async (req, res) => {
   console.log('Browser has ' + (await browser.pages()).length + ' pages');
   console.log((await browser.pages()));
   await browser.close();
-  return pdfBuffer.toString('base64');
+  res.contentType('application/pdf');
+  res.send(pdfBuffer);
 });
 
 const happyEmojis = ['🌞', '✨', '🌼', '🤸‍♂️', '☕', '🐶', '🍌', '🤠', '🤓', '👽', '🦄', '🦚'];
