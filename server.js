@@ -53,8 +53,8 @@ app.get('/pdf/:report_id/', async (req, res) => {
   await browser.close();
   console.log('Browser is closed, going to send respone.');
   // Save PDF locally for inspection
-  const fs = require('fs');
-  fs.writeFileSync('test.pdf', pdfBuffer);
+  // const fs = require('fs');
+  // fs.writeFileSync('test.pdf', pdfBuffer);
 
   // res.contentType('application/pdf');
   res.setHeader('Content-Type', 'application/pdf');
