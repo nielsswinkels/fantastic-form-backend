@@ -22,8 +22,8 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/pdf/:report_id/', async (req, res) => {
-  //const report_id = validator.escape(req.params.report_id);
-  const report_id = 'ufaiFlheLF';
+  const report_id = validator.escape(req.params.report_id);
+  // const report_id = 'ufaiFlheLF';
 
 
   console.log('function start')
