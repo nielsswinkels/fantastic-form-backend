@@ -27,7 +27,8 @@ app.get('/pdf/:report_id/', async (req, res) => {
 
 
   console.log('function start')
-  const browser = await puppeteer.launch({executablePath: '/usr/bin/google-chrome'});
+  // const browser = await puppeteer.launch(); // for running locally
+  const browser = await puppeteer.launch({executablePath: '/usr/bin/google-chrome'}); // for docker
   const page = await browser.newPage();
   
   console.log('Loading page');
@@ -45,6 +46,8 @@ app.get('/pdf/:report_id/', async (req, res) => {
     format: 'A4',
     landscape: true,
     printBackground: true,
+    margin: 0,
+    timeout: 30000,
     outline: true // experimental
   });
   console.log('PDF Buffer Size:', pdfBuffer.length);
